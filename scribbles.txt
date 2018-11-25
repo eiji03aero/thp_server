@@ -1,0 +1,11 @@
+// inserting into table
+insert into persons (
+  id,
+  name,
+  age
+)
+values (
+  0,
+  'eijiosakabe',
+  25
+);

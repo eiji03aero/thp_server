@@ -11,6 +11,14 @@ type User struct {
 	Articles []Article
 }
 
+func GetUsers() ([]*User, error) {
+	var users []*User
+	if err := db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func CreateUser(data map[string]interface{}) error {
 	user := User{
 		Name:  data["name"].(string),

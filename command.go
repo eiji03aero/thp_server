@@ -11,6 +11,12 @@ func main() {
 	flag.Parse()
 
 	switch flag.Arg(0) {
+
+	case "db:setup":
+		scripts.ResetDB()
+		scripts.Migrate()
+		scripts.Seed()
+
 	case "db:reset":
 		scripts.ResetDB()
 

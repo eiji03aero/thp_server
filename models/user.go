@@ -6,9 +6,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string
-	Email    string
-	Articles []Article
+	Name     string    `json:name`
+	Email    string    `json:email`
+	Articles []Article `json:articles`
 }
 
 func GetUsers() ([]*User, error) {
@@ -19,13 +19,7 @@ func GetUsers() ([]*User, error) {
 	return users, nil
 }
 
-func CreateUser(data map[string]interface{}) error {
-	user := User{
-		Name:  data["name"].(string),
-		Email: data["email"].(string),
-	}
-	if err := db.Create(&user).Error; err != nil {
-		return err
-	}
-	return nil
+func SaveUser(user *User) error {
+	err := db.Save(user).Error
+	return err
 }

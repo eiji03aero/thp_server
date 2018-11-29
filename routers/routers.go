@@ -29,7 +29,10 @@ func InitRouter() *gin.Engine {
 		})
 	})
 
-	r.GET("/users", v1.GetAllUsers)
+	v1_routes := r.Group("/v1")
+	{
+		v1.UsersHandler(v1_routes)
+	}
 
 	return r
 }

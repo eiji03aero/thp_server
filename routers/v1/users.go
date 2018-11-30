@@ -5,12 +5,13 @@ import (
 	"github.com/eiji03aero/thp_server/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
-func UsersHandler(r *gin.RouterGroup) {
-	users_routes := r.Group("/users")
+func UsersHandler(rg *gin.RouterGroup) {
+	r := rg.Group("/users")
 	{
-		users_routes.GET("/", func(c *gin.Context) {
+		r.GET("/", func(c *gin.Context) {
 			var (
 				users []*models.User
 				err   error
@@ -27,14 +28,78 @@ func UsersHandler(r *gin.RouterGroup) {
 			c.JSON(http.StatusOK, gin.H{"users": users})
 		})
 
-		users_routes.POST("/", func(c *gin.Context) {
+		r.GET("/:id", func(c *gin.Context) {
+			var (
+				id   int
+				user *models.User
+				err  error
+			)
+
+			if id, err = strconv.Atoi(c.Param("id")); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if user, err = models.GetUser(id); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"user": user})
+		})
+
+		r.POST("/", func(c *gin.Context) {
 			var user models.User
 			if err := c.ShouldBindJSON(&user); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
-			models.CreateUser(&user)
+			models.SaveUser(&user)
 			c.JSON(http.StatusOK, gin.H{"user": user})
+		})
+
+		r.PATCH("/:id", func(c *gin.Context) {
+			var (
+				id   int
+				user models.User
+				err  error
+			)
+
+			if id, err = strconv.Atoi(c.Param("id")); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := c.ShouldBindJSON(&user); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := models.EditUser(id, &user); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"user": user})
+		})
+
+		r.DELETE("/:id", func(c *gin.Context) {
+			var (
+				id  int
+				err error
+			)
+
+			if id, err = strconv.Atoi(c.Param("id")); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			if err := models.DeleteUser(id); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"deleted": id})
 		})
 	}
 }

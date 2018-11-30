@@ -19,7 +19,29 @@ func GetUsers() ([]*User, error) {
 	return users, nil
 }
 
+func GetUser(id int) (*User, error) {
+	var user User
+	if err := db.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func SaveUser(user *User) error {
 	err := db.Save(user).Error
 	return err
+}
+
+func EditUser(id int, user *User) error {
+	if err := db.Model(&User{}).Where("id = ?", id).Updates(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteUser(id int) error {
+	if err := db.Where("id = ?", id).Delete(User{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
